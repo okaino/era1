@@ -8,8 +8,20 @@ import Register from '../src/pages/Register'
 import axios from 'axios'
 import { Toaster } from 'react-hot-toast'
 
-axios.defaults.baseURL = 'http://localhost:3000'
 axios.defaults.withCredentials
+
+axios.interceptors.request.use(
+  config => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);
 
 function App() {
   const [count, setCount] = useState(0)

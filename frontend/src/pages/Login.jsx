@@ -10,27 +10,42 @@ export default function Login() {
     password:''
   })
 
-  const loginUser =async (e) => {
-    console.log(formData)
-    e.preventDefault()
-    const {email, password} = formData
+  const loginUser = async (e) => {
+    e.preventDefault();
+    const { email, password } = formData;
+
     try {
-      const {receiver} = await axios.post('api/login', {
-        email,
-        password
-      });
-      if(receiver?.error){
-        toast.error(receiver.error)
-      }
-      else {
-        setFormData({})
-        toast.success('Login Succesful.')
-        navigate('/')
-      }
-    } catch (error) {
+      const response = await axios.post('http://localhost:3000/api/login', { email, password });
+      const { accessToken, refreshToken, user_id } = response.data;
+
+      // Store the received tokens
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('user_id', user_id);
       
+      setFormData({});
+      toast.success('Login Successful.');
+      
+      navigate('/');
+
+      // Set the auth token for any future requests
+      setAuthToken(accessToken);
+    } catch (error) {
+      if (error.response && error.response.data) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error('An error occurred during login.');
+      }
     }
+}
+function setAuthToken(token) {
+  if (token) {
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  } else {
+    delete axios.defaults.headers.common['Authorization'];
   }
+}
+
 
   return (
     <div>

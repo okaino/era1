@@ -32,11 +32,12 @@ const registerUser = async (req, res) => {
     const user = rows[0];
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) return res.status(401).json({ message: 'Invalid credentials' });
-  
+     
     const accessToken = generateToken(user);
     const refreshToken = generateRefreshToken(user);
-    
-    res.json({ accessToken, refreshToken });
+    const user_id = user.id
+
+    res.json({ accessToken, refreshToken, user_id });
     } catch (error) {
       res.status(500).send({ error:"Error logging user" });
     }

@@ -17,7 +17,7 @@ export default function Register() {
     e.preventDefault()
     const {user_name, user_surname, email, password} = formData
     try {
-      const {receiver} = await axios.post('/api/register', {
+      const {receiver} = await axios.post('http://localhost:3000/api/register', {
         user_name, user_surname, email, password
       })
       if(receiver?.error){

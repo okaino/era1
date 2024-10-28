@@ -6,15 +6,15 @@ const Post = require('../models/post.js')
 
 const createActivity = async (req, res) => {
   try {
-    const { content, attendees_id, comments, attendees_name } = req.body;
+    const { content } = req.body;
     const user_id = req.user["user_id"]
     const user_name = req.user["user_name"]
     const newPost = new Post({
       user_id: user_id,
       user_name: user_name,
       content: content,
-      attendees_id: attendees_id ? attendees_id : [],
-      attendees_name: attendees_name ? attendees_name : [],
+      attendees_id: [],
+      attendees_name: [],
       comments: []
     });
 
@@ -96,7 +96,7 @@ const joinActivity = async (req, res) => {
       await activity.save();
       return res.status(200).json({ message: 'User added to activity', activity });
     } else {
-      return res.status(400).json({ message: 'User already part of the activity' });
+      return res.status(400).json({ error: 'User already part of the activity' });
     }
   } catch (error) {
     console.error('Error joining activity:', error);
@@ -124,10 +124,10 @@ const makeComment = async (req, res) => {
     }
     activity.comments.push(JSON.stringify(comment_data))
     await activity.save();
-    return res.status(200).json({ message: 'User added to activity', activity });
+    return res.status(200).json({ message: 'Commented!', activity });
   } catch (error) {
     console.error('Error joining activity:', error);
-    return res.status(500).json({ message: 'An error occurred while commenting the activity' });
+    return res.status(500).json({ error: 'An error occurred while commenting the activity' });
   }
 
 }
@@ -140,8 +140,8 @@ const deleteComment = async (req, res) => {
     if (!activity) {
       return res.status(404).json({ message: 'Activity not found' })
     }
-    activity.comments.splice(comment_index, 1)
-    console.log(activity.comments)
+    let arr = activity.comments.splice(comment_index-1, 1)
+    console.log(arr)
     return res.status(200).json({ message: 'Comment deleted', activity });
   } catch (error) {
     return res.status(500).json({ message: 'An error occurred while deleting comment' });

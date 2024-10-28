@@ -2,10 +2,15 @@ const express = require('express');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/authPost');
 const cors = require('cors')
+const cookieParser = require('cookie-parser')
 
 dotenv.config();
+
 const app = express();
+
 app.use(express.json());
+app.use(cookieParser())
+app.use(express.urlencoded({extended: false}))
 
 app.use('/post', authRoutes);
 
