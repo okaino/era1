@@ -1,10 +1,11 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { generateToken, generateRefreshToken } = require('../utils/token');
+const { generateToken, generateRefreshToken, destroyToken } = require('../utils/token');
 
 const db = require('../db');
 
 const registerUser = async (req, res) => {
+  try {
     const { email, password, user_name, user_surname } = req.body;
   
     const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
@@ -14,11 +15,16 @@ const registerUser = async (req, res) => {
     await db.query('INSERT INTO users (email, password, user_name, user_surname) VALUES (?, ?, ?, ?)', [email, hashedPassword, user_name, user_surname]);
   
     res.status(201).json({ message: 'User registered' });
+  } catch (error) {
+    res.status(500).send({ error: "Error registering user" });
+  }
+    
   };
   
 
   const loginUser = async (req, res) => {
-    const { email, password } = req.body;
+    try {
+      const { email, password } = req.body;
     
     const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
     if (rows.length === 0) return res.status(404).json({ message: 'User not found' });
@@ -31,15 +37,26 @@ const registerUser = async (req, res) => {
     const refreshToken = generateRefreshToken(user);
     
     res.json({ accessToken, refreshToken });
+    } catch (error) {
+      res.status(500).send({ error:"Error logging user" });
+    }
+    
   };
-const logoutUser = (req, res) => {
+const logoutUser = async (req, res) => {
   // Logic for logout (you can use tokens revocation logic here)
+  const { email } = req.body;
+    
+  const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+  if (rows.length === 0) return res.status(404).json({ message: 'User not found' });
+  
+  const user = rows[0];
+  const re = destroyToken(user)
+  console.log(re)
   res.json({ message: 'Logged out successfully' });
 };
 
 const refreshToken = (req, res) => {
     const { token } = req.body;
-    console.log(token)
     if (!token) {
       return res.status(401).json({ message: 'Refresh token required' });
     }
