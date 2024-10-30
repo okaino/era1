@@ -16,6 +16,7 @@ export default function Home() {
   const [isPopupOpen, setPopupOpen] = useState(false);
   const [attendedActivity, setAttendedActivity] = useState(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [actionConfirmed, setActionConfirmed] = useState(null);
   const [messages, setMessages] = useState([]);
 
   const toggleForm = () => {
